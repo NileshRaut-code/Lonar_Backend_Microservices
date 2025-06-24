@@ -1,7 +1,3 @@
-Here's a **README** file tailored for your project after refactoring it from a **monolithic architecture** to a **microservices architecture** using **Node.js**, **Express**, **MongoDB**, and **API Gateway/Proxy**.
-
----
-
 ## 🏪 Lonar Marketplace Backend - Microservices Architecture
 
 This is a refactored version of the original monolithic [Lonar Marketplace Backend](https://github.com/NileshRaut-code/Lonar-markate-place-backend) into a microservices-based architecture using **Node.js**, **Express**, **MongoDB**, and **API Gateway** pattern.
