@@ -1,0 +1,13 @@
+{
+  "name": "lonar-microservices",
+  "version": "1.0.0",
+  "description": "Main runner for the Lonar e-commerce microservices",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "start:all": "concurrently \"npm start --prefix gateway\" \"npm start --prefix user-service\" \"npm start --prefix seller-service\" \"npm start --prefix order-service\" \"npm start --prefix admin-service\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
