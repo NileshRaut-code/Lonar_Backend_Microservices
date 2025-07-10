@@ -1,0 +1,43 @@
+steps:
+  # Step 1: Build image for each service
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: ./user-service
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/user-service:v1', '.']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: ./order-service
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/order-service:v1', '.']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: ./seller-service
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/seller-service:v1', '.']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: ./admin-service
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/admin-service:v1', '.']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: ./gateway
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/gateway:v1', '.']
+
+  # Step 2: Push images
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/user-service:v1']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/order-service:v1']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/seller-service:v1']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/admin-service:v1']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/gateway:v1']
+
+  # Step 3: Deploy to GKE
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'k8s-deployment.yaml']
+    env:
+      - 'CLOUDSDK_COMPUTE_REGION=us-central1'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=my-cluster'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
