@@ -7,7 +7,6 @@ app.use(cors({
     origin: "http://localhost:3000",
     credentials: true
 }));
-// Define logging and error handling for the proxy
 const onProxyReq = (proxyReq, req, res) => {
     console.log(`[Gateway] Forwarding request: ${req.method} ${req.originalUrl} -> ${proxyReq.protocol}//${proxyReq.host}${proxyReq.path}`);
 };
