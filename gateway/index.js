@@ -16,11 +16,13 @@ const onError = (err, req, res) => {
     res.status(500).send('Proxy encountered an error.');
 };
 
+// The target URLs now point to the Kubernetes Service names.
+// Kubernetes' internal DNS will resolve these names to the correct service IP.
 const services = [
-    { route: '/api/v1/users', target: 'http://localhost:8002' },    // User Service
-    { route: '/api/v1/seller', target: 'http://localhost:8003' },   // Seller Service
-    { route: '/api/v1/orders', target: 'http://localhost:8001' },   // Order Service
-    { route: '/api/v1/admin', target: 'http://localhost:8004' },    // Admin Service
+    { route: '/api/v1/users', target: 'http://user-service:8002' },
+    { route: '/api/v1/seller', target: 'http://seller-service:8003' },
+    { route: '/api/v1/orders', target: 'http://order-service:8001' },
+    { route: '/api/v1/admin', target: 'http://admin-service:8004' },
 ];
 
 services.forEach(({ route, target }) => {
