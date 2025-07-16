@@ -11,6 +11,8 @@ import {
   updateAccountDetails,
   allProducts,
   allProductsLimitpage,
+  forgotPassword,
+  resetPassword
 } from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import multer from "multer";
@@ -21,6 +23,10 @@ const router = Router();
 router.route("/register").post(registerUser);
 
 router.route("/login").post(loginUser);
+
+router.route("/password/forgot").post(forgotPassword);
+
+router.route("/password/reset/:token").put(resetPassword);
 
 //secured routes
 router.route("/logout").post(verifyJWT, logoutUser);

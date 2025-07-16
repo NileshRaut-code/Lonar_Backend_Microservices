@@ -6,6 +6,8 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { Product } from "../models/product.model.js";
+import { sendEmail } from "../utils/sendEmail.js";
+import crypto from "crypto";
 
 const generateAccessAndRefereshTokens = async (userId) => {
   try {
@@ -299,6 +301,76 @@ const allProducts = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, product_data, "all product fetched"));
 });
 
+const forgotPassword = asyncHandler(async (req, res, next) => {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    // Get ResetPassword Token
+    const resetToken = user.getResetPasswordToken();
+
+    await user.save({ validateBeforeSave: false });
+
+    const resetPasswordUrl = `${req.protocol}://${req.get(
+        "host"
+    )}/password/reset/${resetToken}`;
+
+    const message = `Your password reset token is :- \n\n ${resetPasswordUrl} \n\nIf you have not requested this email then, please ignore it.`;
+
+    try {
+        await sendEmail({
+            email: user.email,
+            subject: `Ecommerce Password Recovery`,
+            message,
+        });
+
+        res.status(200).json(new ApiResponse(200, {}, "Email sent successfully"));
+
+    } catch (error) {
+        user.forgotPasswordToken = undefined;
+        user.forgotPasswordTokenExpiry = undefined;
+
+        await user.save({ validateBeforeSave: false });
+
+        throw new ApiError(500, error.message)
+    }
+});
+
+// Reset Password
+const resetPassword = asyncHandler(async (req, res, next) => {
+    // creating token hash
+    const forgotPasswordToken = crypto
+        .createHash("sha256")
+        .update(req.params.token)
+        .digest("hex");
+
+    const user = await User.findOne({
+        forgotPasswordToken,
+        forgotPasswordTokenExpiry: { $gt: Date.now() },
+    });
+
+    if (!user) {
+        throw new ApiError(400, "Reset Password Token is invalid or has been expired")
+    }
+
+    if (req.body.password !== req.body.confirmPassword) {
+        throw new ApiError(400, "Password does not password")
+    }
+
+    user.password = req.body.password;
+    user.forgotPasswordToken = undefined;
+    user.forgotPasswordTokenExpiry = undefined;
+
+    await user.save();
+
+    res.status(200).json(new ApiResponse(200, {}, "Password Changed Successfully"));
+
+})
+
 const allProductsLimitpage = asyncHandler(async (req, res) => {
     const page = parseInt(req.params.id) || 1;
     const limit = 10;
@@ -323,5 +395,7 @@ export {
     updateUserAvatar,
     updateUserCoverImage,
     allProducts,
-    allProductsLimitpage
+    allProductsLimitpage,
+    forgotPassword,
+    resetPassword
 };
